@@ -11,6 +11,8 @@ import com.utp.model.Categoria;
 import com.utp.model.Nota;
 import com.utp.model.Usuario;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import javax.annotation.PostConstruct;
@@ -31,6 +33,19 @@ public class BuscarController implements Serializable{
     private List<Nota> listaNotas;
     private int codigoCategoria;
     private Date fechaConsulta;
+    private String date;
+    private String action;
+    
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    
 
     public int getCodigoCategoria() {
         return codigoCategoria;
@@ -65,12 +80,27 @@ public class BuscarController implements Serializable{
     public void setListaNotas(List<Nota> listaNotas) {
         this.listaNotas = listaNotas;
     }
+
+    public String getAction() {
+        return action;
+    }
+
+    public void setAction(String action) {
+        this.action = action;
+    }
     
     
     @PostConstruct
     public void init(){
         listaCategorias = categoriaEJB.findAll();
+        Calendar cal = Calendar.getInstance();
+        Date today = cal.getTime();
+        String pattern = "dd/MM/yyyy";
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+
+        date = simpleDateFormat.format(today);
     }
+   
     
     public void buscar(){
         try{

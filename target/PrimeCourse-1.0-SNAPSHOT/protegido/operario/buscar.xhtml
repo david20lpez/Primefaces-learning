@@ -14,7 +14,7 @@
                 <h:form>
                     <h:panelGrid columns="5">
                         <p:outputLabel for="cal" value="Fecha" />
-                        <p:calendar id="cal" locale="es" required="true" value="#{buscarController.fechaConsulta}" />
+                        <p:calendar id="cal" locale="es" required="true" value="#{buscarController.fechaConsulta}" placeholder="#{buscarController.date}"/>
                         
                         <p:outputLabel for="cboCategoria" value="Categoria" />
                         <p:selectOneMenu id="cboCategoria" value="#{buscarController.codigoCategoria}">
@@ -28,10 +28,12 @@
                     <p:dataGrid id="grid" value="#{buscarController.listaNotas}" var="nota">
                         <p:panel header="#{nota.categoria.nombre}" />
                         <h:panelGrid columns="2" >
-                            <p:outputLabel value="#{nota.encabezado}" />
-                            <p:outputLabel value="#{nota.cuerpo}" />
-                            <p:inputTextarea value="#{nota.comentarioAdmin}" disabled="true" />
-                            <p:rating value="#{nota.valoracion}" readonly="true"/>
+                            <h1> #{nota.encabezado} </h1>
+                            <p:outputLabel value="#{nota.cuerpo}"/>
+                            <h:form rendered="#{buscarController.action == 'S'}">
+                                <p:inputTextarea value="#{nota.comentarioAdmin}" readonly="true" />
+                                <p:rating value="#{nota.valoracion}" readonly="true" />  
+                            </h:form>
                         </h:panelGrid>
                         
                     </p:dataGrid>

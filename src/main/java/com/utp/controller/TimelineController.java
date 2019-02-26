@@ -65,14 +65,19 @@ public class TimelineController implements Serializable{
         
         //FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "Descripción de la nota:", timelineEvent.getData().toString());  
         //FacesContext.getCurrentInstance().addMessage(null, msg);
-        for(Nota n: notas){
+        try{
+            for(Nota n: notas){
             if(n.getEncabezado().equals(timelineEvent.getData().toString())){
                 String valoracion = valorar(n.getValoracion());
                 FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "Comentario:", n.getComentarioAdmin());
                 FacesContext.getCurrentInstance().addMessage(null, msg);
                 FacesMessage msg1 = new FacesMessage(FacesMessage.SEVERITY_INFO, "Valoración:", valoracion);
                 FacesContext.getCurrentInstance().addMessage(null, msg1);
+                }
             }
+        }catch(Exception s){
+            FacesMessage msg1 = new FacesMessage(FacesMessage.SEVERITY_FATAL, "Aviso", "Nota ni comentada ni valorada aún");
+            FacesContext.getCurrentInstance().addMessage(null, msg1);
         }
     } 
     
@@ -81,7 +86,7 @@ public class TimelineController implements Serializable{
         String valor = "";
         while(i < n){
             i++;
-            valor = valor + "★";
+            valor = valor + "⭐";
         }
         return valor;
     }
