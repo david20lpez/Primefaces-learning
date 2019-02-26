@@ -17,6 +17,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.UniqueConstraint;
 
 @Entity
 @Table(name = "nota")
@@ -31,7 +32,7 @@ public class Nota implements Serializable{
     @ManyToOne
     @JoinColumn(name = "codigo_categoria", nullable = false)
     private Categoria categoria;
-    @Column(name = "encabezado")
+    @Column(name = "encabezado", unique = true)
     private String encabezado;
     @Column(name = "cuerpo")
     private String cuerpo;

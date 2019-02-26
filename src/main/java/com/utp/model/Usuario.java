@@ -23,7 +23,7 @@ public class Usuario implements Serializable{
     @OneToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "codigo", nullable = false)
     private Persona codigo;
-    @Column(name = "usuario")
+    @Column(name = "usuario", unique = true)
     private String usuario;
     @Column(name = "clave")
     private String clave;

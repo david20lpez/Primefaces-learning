@@ -2,7 +2,8 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-      xmlns:h="http://xmlns.jcp.org/jsf/html">
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui">
 
     <body>
 
@@ -12,6 +13,24 @@
                 <h1> Hola Usuario:
                 <h:outputText value="#{menuController.mostrarNombre()}" />
                 </h1>
+                
+                
+                    <p:growl id="growl" autoUpdate="true" showSummary="true" showDetail="true">
+                    </p:growl>
+        
+                <p:timeline id="timeline" value="#{timelineController.model}" 
+                        selectable="#{timelineController.selectable}"
+                        zoomable="#{timelineController.zoomable}"
+                        moveable="#{timelineController.moveable}"
+                        stackEvents="#{timelineController.stackEvents}"
+                        axisOnTop="#{timelineController.axisOnTop}"
+                        eventStyle="#{timelineController.eventStyle}"
+                        showCurrentTime="#{timelineController.showCurrentTime}"
+                        showNavigation="#{timelineController.showNavigation}">
+
+                    <p:ajax event="select" listener="#{timelineController.onSelect}"/>
+
+                </p:timeline>
             </ui:define>
 
         </ui:composition>

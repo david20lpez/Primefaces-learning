@@ -5,9 +5,13 @@
  */
 package com.utp.controller;
 
+import com.utp.ejb.NotaFacadeLocal;
+import com.utp.model.Nota;
 import java.io.Serializable;
 import java.util.Calendar;
+import java.util.List;
 import javax.annotation.PostConstruct;
+import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
@@ -20,7 +24,11 @@ import org.primefaces.model.timeline.TimelineModel;
 @ManagedBean(name="timelineController")
 @ViewScoped
 public class TimelineController implements Serializable{
-    private TimelineModel model;  
+    @EJB
+    private NotaFacadeLocal notasEJB;
+    private List<Nota> notas;
+    
+    private TimelineModel model;
    
     private boolean selectable = true;  
     private boolean zoomable = true;  
@@ -29,65 +37,54 @@ public class TimelineController implements Serializable{
     private String eventStyle = "box";  
     private boolean axisOnTop;  
     private boolean showCurrentTime = true;  
-    private boolean showNavigation = false;  
+    private boolean showNavigation = false;
+    
+    
    
     @PostConstruct 
-    protected void initialize() {  
+    protected void initialize() {
+        notas = notasEJB.findAll();
         model = new TimelineModel();  
+        
+        Calendar cal1;
    
-        Calendar cal = Calendar.getInstance();                   
-        cal.set(2014, Calendar.JUNE, 12, 0, 0, 0);  
-        model.add(new TimelineEvent("PrimeUI 1.1", cal.getTime()));  
-           
-        cal.set(2014, Calendar.OCTOBER, 11, 0, 0, 0);  
-        model.add(new TimelineEvent("Primefaces 5.1.3", cal.getTime())); 
-         
-        cal.set(2015, Calendar.DECEMBER, 8, 0, 0, 0);  
-        model.add(new TimelineEvent("PrimeUI 2.2", cal.getTime()));
- 
-        cal.set(2015, Calendar.MARCH, 10, 0, 0, 0);  
-        model.add(new TimelineEvent("Sentinel-Layout 1.1", cal.getTime())); 
-         
-        cal.set(2015, Calendar.APRIL, 3, 0, 0, 0);  
-        model.add(new TimelineEvent("Spark-Layout 1.0", cal.getTime()));
-         
-        cal.set(2015, Calendar.MAY, 15, 0, 0, 0);  
-        model.add(new TimelineEvent("Ronin-Layout 1.0", cal.getTime()));
-         
-        cal.set(2015, Calendar.JULY, 10, 0, 0, 0);  
-        model.add(new TimelineEvent("Modena-Layout 1.0", cal.getTime()));
-         
-        cal.set(2015, Calendar.JUNE, 15, 0, 0, 0);  
-        model.add(new TimelineEvent("Rio-Layout 1.0", cal.getTime()));
-         
-        cal.set(2015, Calendar.SEPTEMBER, 4, 0, 0, 0);  
-        model.add(new TimelineEvent("Adamantium-Layout 1.0", cal.getTime()));
-         
-        cal.set(2015, Calendar.DECEMBER, 14, 0, 0, 0);  
-        model.add(new TimelineEvent("Titan-Layout 1.0", cal.getTime()));
-         
-        cal.set(2015, Calendar.OCTOBER, 12, 0, 0, 0);  
-        model.add(new TimelineEvent("Volt-Layout 1.0", cal.getTime())); 
-         
-        cal.set(2016, Calendar.JANUARY, 28, 0, 0, 0);  
-        model.add(new TimelineEvent("Atlas-Layout 1.0", cal.getTime()));
-   
-        cal.set(2016, Calendar.FEBRUARY, 24, 0, 0, 0);  
-        model.add(new TimelineEvent("PrimeUI 4.1.0", cal.getTime()));  
-   
-        cal.set(2016, Calendar.FEBRUARY, 29, 0, 0, 0);  
-        model.add(new TimelineEvent("Primefaces 5.3.8", cal.getTime()));  
-   
-        cal.set(2016, Calendar.FEBRUARY, 29, 0, 0, 0);  
-        model.add(new TimelineEvent("PrimeNG 0.5", cal.getTime()));  
+//        Calendar cal = Calendar.getInstance();                   
+//        cal.set(2014, Calendar.JUNE, 12, 0, 0, 0);  
+//        model.add(new TimelineEvent("PrimeUI 1.1", cal.getTime())); 
+        
+        for(Nota n : notas){
+            cal1 = Calendar.getInstance();
+            cal1.setTime(n.getFecha());
+            model.add(new TimelineEvent(n.getEncabezado(), cal1.getTime()));
+        }     
     }  
+    
    
     public void onSelect(TimelineSelectEvent e) {  
         TimelineEvent timelineEvent = e.getTimelineEvent();  
-   
-        FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "Selected event:", timelineEvent.getData().toString());  
-        FacesContext.getCurrentInstance().addMessage(null, msg);  
-    }  
+        
+        //FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "Descripción de la nota:", timelineEvent.getData().toString());  
+        //FacesContext.getCurrentInstance().addMessage(null, msg);
+        for(Nota n: notas){
+            if(n.getEncabezado().equals(timelineEvent.getData().toString())){
+                String valoracion = valorar(n.getValoracion());
+                FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "Comentario:", n.getComentarioAdmin());
+                FacesContext.getCurrentInstance().addMessage(null, msg);
+                FacesMessage msg1 = new FacesMessage(FacesMessage.SEVERITY_INFO, "Valoración:", valoracion);
+                FacesContext.getCurrentInstance().addMessage(null, msg1);
+            }
+        }
+    } 
+    
+    public String valorar(int n){
+        int i = 0;
+        String valor = "";
+        while(i < n){
+            i++;
+            valor = valor + "★";
+        }
+        return valor;
+    }
    
     public TimelineModel getModel() {  
         return model;  

@@ -52,7 +52,6 @@
                             <p:outputLabel for="txtNumero" value="Número" />
                             <p:inputMask id="txtNumero" mask="9?999999999" required="true" value="#{telefonoController.telefono.numero}"/> 
                             <p:commandButton value="Registrar" icon="ui-icon-check" update=":fmrPrincipal:tabla" actionListener="#{telefonoController.registrar()}" oncomplete="PF('wdialogo').hide();" rendered="#{telefonoController.accion == 'R'}" />
-                            <p:commandButton value="Modificar" icon="ui-icon-check" update=":fmrPrincipal:tabla" actionListener="#{telefonoController.modificar()}" oncomplete="PF('wdialogo').hide();" rendered="#{telefonoController.accion == 'M'}" />
                             <p:commandButton value="Cancelar" icon="ui-icon-close" immediate="true" onclick="PF('wdialogo').hide();"/>
                         </h:panelGrid>
                     </h:form>
