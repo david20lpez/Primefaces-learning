@@ -94,11 +94,7 @@ public class BuscarController implements Serializable{
     public void init(){
         listaCategorias = categoriaEJB.findAll();
         Calendar cal = Calendar.getInstance();
-        Date today = cal.getTime();
-        String pattern = "dd/MM/yyyy";
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
-
-        date = simpleDateFormat.format(today);
+        fechaConsulta = cal.getTime();
     }
    
     
@@ -106,6 +102,20 @@ public class BuscarController implements Serializable{
         try{
             Usuario us = (Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("usuario");
             listaNotas = notaEJB.buscar(us.getCodigo().getCodigo(), codigoCategoria, fechaConsulta);
+            for(Nota n: listaNotas){
+                if((n.getComentarioAdmin()!=null && !"".equals(n.getComentarioAdmin())) && n.getValoracion()!= null){
+                    this.setAction("S");
+                }
+                else if((!"".equals(n.getComentarioAdmin())&& n.getComentarioAdmin()!=null) && n.getValoracion()==null){
+                    this.setAction("C");
+                }
+                else if("".equals(n.getComentarioAdmin())&& n.getValoracion()!=null){
+                    this.setAction("V");
+                }
+                else if(n.getComentarioAdmin()==null && n.getValoracion()==null){
+                    this.setAction("");
+                }
+            }
         }catch(Exception e){
             System.out.println(e.getMessage());
         }

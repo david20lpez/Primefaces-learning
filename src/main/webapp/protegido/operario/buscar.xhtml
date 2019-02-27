@@ -14,7 +14,7 @@
                 <h:form>
                     <h:panelGrid columns="5">
                         <p:outputLabel for="cal" value="Fecha" />
-                        <p:calendar id="cal" locale="es" required="true" value="#{buscarController.fechaConsulta}" placeholder="#{buscarController.date}"/>
+                        <p:calendar id="cal" locale="es" required="true" value="#{buscarController.fechaConsulta}" />
                         
                         <p:outputLabel for="cboCategoria" value="Categoria" />
                         <p:selectOneMenu id="cboCategoria" value="#{buscarController.codigoCategoria}">
@@ -29,14 +29,28 @@
                         <p:panel header="#{nota.categoria.nombre}" />
                         <h:panelGrid columns="2" >
                             <h1> #{nota.encabezado} </h1>
-                            <p:outputLabel value="#{nota.cuerpo}"/>
+                            <p:outputLabel value="&emsp; #{nota.cuerpo}" />
                             <h:form rendered="#{buscarController.action == 'S'}">
                                 <p:inputTextarea value="#{nota.comentarioAdmin}" readonly="true" />
                                 <p:rating value="#{nota.valoracion}" readonly="true" />  
                             </h:form>
+                            <h:form rendered="#{buscarController.action == 'C'}">
+                                <p:inputTextarea value="#{nota.comentarioAdmin}" readonly="true" />
+                                <h5>Nota no valorada aún</h5>
+                            </h:form>
+                            
+                            <h:form rendered="#{buscarController.action == 'V'}">
+                                <h5>Nota no comentada aún</h5>
+                                <br></br>
+                                <p:rating value="#{nota.valoracion}" readonly="true" />
+                            </h:form>
+                            <h:form rendered="#{buscarController == ''}">
+                                <h5>Nota ni comentada ni valorada aún</h5>
+                            </h:form>
                         </h:panelGrid>
                         
                     </p:dataGrid>
+                    
                 </h:form>
                 
                 <h:outputScript library="js" name="spanishLocale.js" />

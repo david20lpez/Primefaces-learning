@@ -11,6 +11,7 @@ import com.utp.model.Categoria;
 import com.utp.model.Nota;
 import com.utp.model.Usuario;
 import java.io.Serializable;
+import java.util.Calendar;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
@@ -69,6 +70,9 @@ public class NotaController implements Serializable{
             Usuario us = (Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("usuario");
             nota.setCategoria(categoria);
             nota.setPersona(us.getCodigo());
+            Calendar cal;
+            cal = Calendar.getInstance();
+            nota.setFecha(cal.getTime());
             notaEJB.create(nota);
 
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Aviso", "Se registró"));

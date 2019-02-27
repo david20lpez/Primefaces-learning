@@ -6,8 +6,11 @@
 package com.utp.controller;
 
 import com.utp.ejb.NotaFacadeLocal;
+import com.utp.ejb.UsuarioFacadeLocal;
 import com.utp.model.Nota;
+import com.utp.model.Usuario;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import javax.annotation.PostConstruct;
@@ -26,6 +29,7 @@ import org.primefaces.model.timeline.TimelineModel;
 public class TimelineController implements Serializable{
     @EJB
     private NotaFacadeLocal notasEJB;
+    private UsuarioFacadeLocal userEJB;
     private List<Nota> notas;
     
     private TimelineModel model;
@@ -43,15 +47,21 @@ public class TimelineController implements Serializable{
    
     @PostConstruct 
     protected void initialize() {
-        notas = notasEJB.findAll();
+        notas = new ArrayList<>();
         model = new TimelineModel();  
-        
         Calendar cal1;
-   
-//        Calendar cal = Calendar.getInstance();                   
-//        cal.set(2014, Calendar.JUNE, 12, 0, 0, 0);  
-//        model.add(new TimelineEvent("PrimeUI 1.1", cal.getTime())); 
-        
+        Usuario us = (Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("usuario");
+        if("A".equals(us.getTipo())){
+            notas = notasEJB.findAll();
+        }
+        else{
+            for(Nota nt: notasEJB.findAll()){
+                if(nt.getPersona().getCodigo() == us.getCodigo().getCodigo()){
+                    notas.add(nt);
+                }
+            }
+        }
+           
         for(Nota n : notas){
             cal1 = Calendar.getInstance();
             cal1.setTime(n.getFecha());
@@ -62,22 +72,41 @@ public class TimelineController implements Serializable{
    
     public void onSelect(TimelineSelectEvent e) {  
         TimelineEvent timelineEvent = e.getTimelineEvent();  
-        
-        //FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "Descripción de la nota:", timelineEvent.getData().toString());  
-        //FacesContext.getCurrentInstance().addMessage(null, msg);
+       
         try{
             for(Nota n: notas){
-            if(n.getEncabezado().equals(timelineEvent.getData().toString())){
-                String valoracion = valorar(n.getValoracion());
-                FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "Comentario:", n.getComentarioAdmin());
-                FacesContext.getCurrentInstance().addMessage(null, msg);
-                FacesMessage msg1 = new FacesMessage(FacesMessage.SEVERITY_INFO, "Valoración:", valoracion);
-                FacesContext.getCurrentInstance().addMessage(null, msg1);
+                if(n.getEncabezado().equals(timelineEvent.getData().toString())){
+                    String valoracion;
+                    if(n.getValoracion()== null){
+                        valoracion = "";
+                    }
+                    else{
+                        valoracion = valorar(n.getValoracion());
+                    }
+                    if((n.getComentarioAdmin()!=null && !"".equals(n.getComentarioAdmin())) && n.getValoracion()!=null){
+                        FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "Comentario:", n.getComentarioAdmin());
+                        FacesContext.getCurrentInstance().addMessage(null, msg);
+                        FacesMessage msg1 = new FacesMessage(FacesMessage.SEVERITY_INFO, "Valoración:", valoracion);
+                        FacesContext.getCurrentInstance().addMessage(null, msg1);
+                    }
+                    else if((n.getComentarioAdmin()==null || "".equals(n.getComentarioAdmin())) && n.getValoracion()!= null){
+                        FacesMessage msg1 = new FacesMessage(FacesMessage.SEVERITY_INFO, "Valoración:", valoracion);
+                        FacesContext.getCurrentInstance().addMessage(null, msg1);
+                    }
+                    else if(n.getValoracion()==null && n.getComentarioAdmin()!=null){
+                        FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "Comentario:", n.getComentarioAdmin());
+                        FacesContext.getCurrentInstance().addMessage(null, msg);
+                    }
+                    else if(n.getComentarioAdmin()==null && n.getValoracion()==null){
+                        FacesMessage msg1 = new FacesMessage(FacesMessage.SEVERITY_INFO, "Aviso", "Nota ni comentada ni valorada aún");
+                        FacesContext.getCurrentInstance().addMessage(null, msg1);
+                    }
                 }
             }
         }catch(Exception s){
-            FacesMessage msg1 = new FacesMessage(FacesMessage.SEVERITY_FATAL, "Aviso", "Nota ni comentada ni valorada aún");
+            FacesMessage msg1 = new FacesMessage(FacesMessage.SEVERITY_FATAL, "Error", "Error en la captura de datos");
             FacesContext.getCurrentInstance().addMessage(null, msg1);
+            throw s;
         }
     } 
     
