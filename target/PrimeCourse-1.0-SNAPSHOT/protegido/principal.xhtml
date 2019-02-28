@@ -19,6 +19,7 @@
                     </p:growl>
         
                 <p:timeline id="timeline" value="#{timelineController.model}" 
+                            locale="es"
                         selectable="#{timelineController.selectable}"
                         zoomable="#{timelineController.zoomable}"
                         moveable="#{timelineController.moveable}"
@@ -31,6 +32,7 @@
                     <p:ajax event="select" listener="#{timelineController.onSelect}"/>
 
                 </p:timeline>
+                <h:outputScript library="js" name="spanishLocaleTimeline.js" />
             </ui:define>
 
         </ui:composition>

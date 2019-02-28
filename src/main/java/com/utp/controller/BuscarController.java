@@ -33,17 +33,8 @@ public class BuscarController implements Serializable{
     private List<Nota> listaNotas;
     private int codigoCategoria;
     private Date fechaConsulta;
-    private String date;
     private String action;
     
-
-    public String getDate() {
-        return date;
-    }
-
-    public void setDate(String date) {
-        this.date = date;
-    }
 
     
 
