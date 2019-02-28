@@ -5,34 +5,39 @@
  */
 package com.utp.controller;
 
+import com.utp.ejb.NotaFacadeLocal;
+import com.utp.model.Categoria;
+import com.utp.model.Nota;
+import com.utp.model.Usuario;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 import javax.annotation.PostConstruct;
+import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
+import javax.faces.context.FacesContext;
 import org.primefaces.model.chart.Axis;
 import org.primefaces.model.chart.AxisType;
 import org.primefaces.model.chart.CategoryAxis;
 import org.primefaces.model.chart.ChartSeries;
-import org.primefaces.model.chart.DonutChartModel;
 import org.primefaces.model.chart.LineChartModel;
-import org.primefaces.model.chart.LineChartSeries;
 
 @ManagedBean
 public class ChartController implements Serializable {
  
-    private LineChartModel lineModel1;
     private LineChartModel lineModel2;
     private LineChartModel zoomModel;
+    @EJB
+    private NotaFacadeLocal notaEJB;
+    private List<Nota> notas;
  
     @PostConstruct
     public void init() {
+        notas = notaEJB.findAll();
         createLineModels();
-       
     }
  
- 
-    public LineChartModel getLineModel1() {
-        return lineModel1;
-    }
  
     public LineChartModel getLineModel2() {
         return lineModel2;
@@ -46,34 +51,59 @@ public class ChartController implements Serializable {
  
     private LineChartModel initCategoryModel() {
         LineChartModel model = new LineChartModel();
- 
-        ChartSeries boys = new ChartSeries();
-        boys.setLabel("Boys");
-        boys.set("2004", 120);
-        boys.set("2005", 100);
-        boys.set("2006", 44);
-        boys.set("2007", 150);
-        boys.set("2008", 25);
- 
-        ChartSeries girls = new ChartSeries();
-        girls.setLabel("Girls");
-        girls.set("2004", 52);
-        girls.set("2005", 60);
-        girls.set("2006", 110);
-        girls.set("2007", 90);
-        girls.set("2008", 120);
- 
-        model.addSeries(boys);
-        model.addSeries(girls);
+        SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
+//        ChartSeries boys = new ChartSeries();
+//        boys.setLabel("Boys");
+//        boys.set("2004", 120);
+//        boys.set("2005", 100);
+//        boys.set("2006", 44);
+//        boys.set("2007", 150);
+//        boys.set("2008", 25);
+// 
+//        ChartSeries girls = new ChartSeries();
+//        girls.setLabel("Girls");
+//        girls.set("2004", 52);
+//        girls.set("2005", 60);
+//        girls.set("2006", 110);
+//        girls.set("2007", 90);
+//        girls.set("2008", 120);
+        
+        
+//        ChartSeries nota = new ChartSeries();
+//        nota.setLabel("Notas");
+//        String dateString;
+//        for(Nota n : notas){
+//            dateString = format.format(n.getFecha());
+//            nota.set(dateString, notesPerDay(n.getFecha(),1));
+//        }
+        String dateString;
+        Usuario us = (Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("usuario");
+        for(Nota n: notas){
+            ChartSeries nota = new ChartSeries();
+            if(n.getPersona().getCodigo() == us.getCodigo().getCodigo()){
+                nota.setLabel(n.getCategoria().getNombre());
+                dateString = format.format(n.getFecha());
+                nota.set(dateString, notesPerDay(n.getFecha(),n.getCategoria().getCodigo(),us.getCodigo().getCodigo()));
+                model.addSeries(nota);
+            }
+        }
+        //model.addSeries(boys);
+        //model.addSeries(girls);
+        //model.addSeries(nota);
  
         return model;
     }
+    
+    public int notesPerDay(Date date, int codigoCategoria, int codigoUsuario){
+        List<Nota> notes;
+        notes = notaEJB.buscar(codigoUsuario, codigoCategoria, date);
+        return notes.size();
+    }
  
     private void createLineModels() {
-        lineModel1 = initLinearModel();
-        lineModel1.setTitle("Linear Chart");
-        lineModel1.setLegendPosition("e");
-        Axis yAxis = lineModel1.getAxis(AxisType.Y);
+        lineModel2 = initLinearModel();
+        
+        Axis yAxis = lineModel2.getAxis(AxisType.Y);
         yAxis.setMin(0);
         yAxis.setMax(10);
  
@@ -85,7 +115,7 @@ public class ChartController implements Serializable {
         yAxis = lineModel2.getAxis(AxisType.Y);
         yAxis.setLabel("Births");
         yAxis.setMin(0);
-        yAxis.setMax(200);
+        yAxis.setMax(10);
  
         zoomModel = initLinearModel();
         zoomModel.setTitle("Zoom");
@@ -100,37 +130,7 @@ public class ChartController implements Serializable {
     private LineChartModel initLinearModel() {
         LineChartModel model = new LineChartModel();
  
-        LineChartSeries series1 = new LineChartSeries();
-        series1.setLabel("Series 1");
- 
-        series1.set(1, 2);
-        series1.set(2, 1);
-        series1.set(3, 3);
-        series1.set(4, 6);
-        series1.set(5, 8);
- 
-        LineChartSeries series2 = new LineChartSeries();
-        series2.setLabel("Series 2");
- 
-        series2.set(1, 6);
-        series2.set(2, 3);
-        series2.set(3, 2);
-        series2.set(4, 7);
-        series2.set(5, 9);
- 
-        model.addSeries(series1);
-        model.addSeries(series2);
- 
         return model;
     }
- 
-   
-    private DonutChartModel initDonutModel() {
-        DonutChartModel model = new DonutChartModel();
-
- 
-        return model;
-    }
-
- 
+    
 }

@@ -27,6 +27,7 @@ com\utp\model\Nota_.class
 com\utp\ejb\NotaFacadeLocal.class
 com\utp\model\Telefono.class
 com\utp\ejb\PersonaFacadeLocal.class
+com\utp\controller\ChartController.class
 com\utp\controller\PlantillaController.class
 com\utp\ejb\TelefonoFacadeLocal.class
 com\utp\model\Usuario_.class

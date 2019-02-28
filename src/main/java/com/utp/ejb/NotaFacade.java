@@ -31,7 +31,7 @@ public class NotaFacade extends AbstractFacade<Nota> implements NotaFacadeLocal{
     }
     
     @Override
-    public List<Nota> buscar(int codigoPersona, int codigoCategoria, Date fechaConsulta)throws Exception{
+    public List<Nota> buscar(int codigoPersona, int codigoCategoria, Date fechaConsulta){
         List<Nota> lista;
         try{
             String jpql = "FROM Nota n WHERE n.persona.codigo = ?1 and n.categoria.codigo = ?2 and n.fecha between ?3 and ?4";

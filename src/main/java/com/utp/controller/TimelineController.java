@@ -29,7 +29,6 @@ import org.primefaces.model.timeline.TimelineModel;
 public class TimelineController implements Serializable{
     @EJB
     private NotaFacadeLocal notasEJB;
-    private UsuarioFacadeLocal userEJB;
     private List<Nota> notas;
     
     private TimelineModel model;

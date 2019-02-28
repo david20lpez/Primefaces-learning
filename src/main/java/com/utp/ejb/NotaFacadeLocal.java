@@ -26,5 +26,5 @@ public interface NotaFacadeLocal {
 
     int count();
     
-    List<Nota> buscar(int codigoPersona, int codigoCategoria, Date fechaConsulta) throws Exception;
+    List<Nota> buscar(int codigoPersona, int codigoCategoria, Date fechaConsulta);
 }
