@@ -32,6 +32,10 @@
                     <p:ajax event="select" listener="#{timelineController.onSelect}"/>
 
                 </p:timeline>
+                
+                <p:chart type="line" model="#{chartController.lineModel1}" style="height:300px;"/>
+                    <br /><br />
+                <p:chart type="line" model="#{chartController.lineModel2}" style="height:300px;"/>
                 <h:outputScript library="js" name="spanishLocaleTimeline.js" />
             </ui:define>
 
