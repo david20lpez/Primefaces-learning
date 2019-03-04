@@ -77,7 +77,7 @@ public class NotaFacade extends AbstractFacade<Nota> implements NotaFacadeLocal{
     public List<Object []> buscarPorCategoria()throws Exception{
         List<Object []> lista;
         try{
-            String jpql = "SELECT n.codigo, n.categoria.codigo, n.fecha FROM Nota n GROUP BY n.categoria.codigo, CAST(n.fecha AS DATE), n.codigo";
+            String jpql = "SELECT COUNT(n.codigo), n.categoria.codigo, n.fecha FROM Nota n GROUP BY n.categoria.codigo, CAST(n.fecha AS DATE)";
             Query query = em.createQuery(jpql);
            
             lista = query.getResultList();
