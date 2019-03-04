@@ -8,6 +8,7 @@ package com.utp.controller;
 import com.utp.ejb.CategoriaFacadeLocal;
 import com.utp.ejb.NotaFacadeLocal;
 import com.utp.model.Categoria;
+import com.utp.model.Nota;
 import com.utp.model.Usuario;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
@@ -83,7 +84,7 @@ public class ChartController implements Serializable {
                for(Object [] obj : me.getValue()){
                    dateString = format.format((Date)obj[2]);
                    if(categoriaEJB.find((Integer)obj[1]).getNombre() == null ? me.getKey() == null : categoriaEJB.find((Integer)obj[1]).getNombre().equals(me.getKey())){
-                       notas.set(dateString, (Long)obj[0]);
+                       notas.set(dateString, (Integer)obj[0]);
                    } 
                }
                model.addSeries(notas);
@@ -97,13 +98,22 @@ public class ChartController implements Serializable {
     
     private List<Object []> listaPorCategoria(Categoria categoria){
         List<Object []> lista = new ArrayList<>();
+        int counter = 0;
+        Nota n = new Nota();
         Usuario us = (Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("usuario");
         try{
             List<Object[]> results = notaEJB.buscarPorCategoria();
             for(Object [] obj : results){
-                if((Integer)obj[1] == categoria.getCodigo()){
+                n = notaEJB.find((Integer)obj[0]);
+                if("A".equals(us.getTipo()) && (Integer)obj[1] == categoria.getCodigo()){
                     lista.add(obj);
+                    counter++;
                 }
+                else if((Integer)obj[1] == categoria.getCodigo() && (us.getCodigo().getCodigo() == n.getPersona().getCodigo()) ){
+                    lista.add(obj);
+                    counter++;
+                }
+                obj[0]=counter;
             }
         }catch(Exception e){
         }
@@ -169,7 +179,7 @@ public class ChartController implements Serializable {
                for(Object [] obj : me.getValue()){
                    dateString = format.format((Date)obj[2]);
                    if(categoriaEJB.find((Integer)obj[1]).getNombre() == null ? me.getKey() == null : categoriaEJB.find((Integer)obj[1]).getNombre().equals(me.getKey())){
-                       notas.set(dateString,(Long)obj[0]);
+                       notas.set(dateString,(Integer)obj[0]);
                    } 
                }
                model.addSeries(notas);
