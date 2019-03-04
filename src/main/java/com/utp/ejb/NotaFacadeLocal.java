@@ -27,4 +27,9 @@ public interface NotaFacadeLocal {
     int count();
     
     List<Nota> buscar(int codigoPersona, int codigoCategoria, Date fechaConsulta);
+    
+    List<Nota> adminBuscar(int codigoCategoria, Date fechaConsulta);
+    
+    List<Object []> buscarPorCategoria()throws Exception;
+    
 }

@@ -33,6 +33,7 @@ com\utp\ejb\TelefonoFacadeLocal.class
 com\utp\model\Usuario_.class
 com\utp\ejb\PersonaFacade.class
 com\utp\controller\NotaController.class
+com\utp\controller\ChartView.class
 com\utp\controller\MenuController.class
 com\utp\ejb\NotaFacade.class
 com\utp\model\Telefono_.class

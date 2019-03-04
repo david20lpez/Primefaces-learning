@@ -5,20 +5,27 @@
  */
 package com.utp.controller;
 
+import com.utp.ejb.CategoriaFacadeLocal;
 import com.utp.ejb.NotaFacadeLocal;
 import com.utp.model.Categoria;
-import com.utp.model.Nota;
 import com.utp.model.Usuario;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 import org.primefaces.model.chart.Axis;
 import org.primefaces.model.chart.AxisType;
+import org.primefaces.model.chart.BarChartModel;
 import org.primefaces.model.chart.CategoryAxis;
 import org.primefaces.model.chart.ChartSeries;
 import org.primefaces.model.chart.LineChartModel;
@@ -28,14 +35,16 @@ public class ChartController implements Serializable {
  
     private LineChartModel lineModel2;
     private LineChartModel zoomModel;
+    private BarChartModel barModel;
     @EJB
     private NotaFacadeLocal notaEJB;
-    private List<Nota> notas;
+    @EJB
+    private CategoriaFacadeLocal categoriaEJB;
  
     @PostConstruct
     public void init() {
-        notas = notaEJB.findAll();
         createLineModels();
+        createBarModels();
     }
  
  
@@ -46,60 +55,61 @@ public class ChartController implements Serializable {
     public LineChartModel getZoomModel() {
         return zoomModel;
     }
+    
+    public BarChartModel getBarModel() {
+        return barModel;
+    }
  
  
  
-    private LineChartModel initCategoryModel() {
+    private LineChartModel initCategoryModel() throws Exception {
         LineChartModel model = new LineChartModel();
-        SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
-//        ChartSeries boys = new ChartSeries();
-//        boys.setLabel("Boys");
-//        boys.set("2004", 120);
-//        boys.set("2005", 100);
-//        boys.set("2006", 44);
-//        boys.set("2007", 150);
-//        boys.set("2008", 25);
-// 
-//        ChartSeries girls = new ChartSeries();
-//        girls.setLabel("Girls");
-//        girls.set("2004", 52);
-//        girls.set("2005", 60);
-//        girls.set("2006", 110);
-//        girls.set("2007", 90);
-//        girls.set("2008", 120);
-        
-        
-//        ChartSeries nota = new ChartSeries();
-//        nota.setLabel("Notas");
-//        String dateString;
-//        for(Nota n : notas){
-//            dateString = format.format(n.getFecha());
-//            nota.set(dateString, notesPerDay(n.getFecha(),1));
-//        }
-        String dateString;
-        Usuario us = (Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("usuario");
-        for(Nota n: notas){
-            ChartSeries nota = new ChartSeries();
-            if(n.getPersona().getCodigo() == us.getCodigo().getCodigo()){
-                nota.setLabel(n.getCategoria().getNombre());
-                dateString = format.format(n.getFecha());
-                nota.set(dateString, notesPerDay(n.getFecha(),n.getCategoria().getCodigo(),us.getCodigo().getCodigo()));
-                model.addSeries(nota);
+        try {
+            
+            SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
+            
+            String dateString;
+             
+            Map<String, List<Object []>> map = new HashMap<>();
+            List<Categoria> categorias = categoriaEJB.findAll();
+            for(Categoria categoria : categorias){
+                map.put(categoria.getNombre(), listaPorCategoria(categoria));
+            }    
+            
+            Set< Map.Entry< String, List<Object []>> > st = map.entrySet();
+            for(Map.Entry<String, List<Object []>> me: st){
+               ChartSeries notas = new ChartSeries();
+               notas.setLabel(me.getKey());
+               for(Object [] obj : me.getValue()){
+                   dateString = format.format((Date)obj[2]);
+                   if(categoriaEJB.find((Integer)obj[1]).getNombre() == null ? me.getKey() == null : categoriaEJB.find((Integer)obj[1]).getNombre().equals(me.getKey())){
+                       notas.set(dateString, (Long)obj[0]);
+                   } 
+               }
+               model.addSeries(notas);
             }
+            
+        } catch (Exception ex) {
+            Logger.getLogger(ChartController.class.getName()).log(Level.SEVERE, null, ex);
         }
-        //model.addSeries(boys);
-        //model.addSeries(girls);
-        //model.addSeries(nota);
- 
         return model;
     }
     
-    public int notesPerDay(Date date, int codigoCategoria, int codigoUsuario){
-        List<Nota> notes;
-        notes = notaEJB.buscar(codigoUsuario, codigoCategoria, date);
-        return notes.size();
+    private List<Object []> listaPorCategoria(Categoria categoria){
+        List<Object []> lista = new ArrayList<>();
+        Usuario us = (Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("usuario");
+        try{
+            List<Object[]> results = notaEJB.buscarPorCategoria();
+            for(Object [] obj : results){
+                if((Integer)obj[1] == categoria.getCodigo()){
+                    lista.add(obj);
+                }
+            }
+        }catch(Exception e){
+        }
+        return lista;
     }
- 
+    
     private void createLineModels() {
         lineModel2 = initLinearModel();
         
@@ -107,13 +117,17 @@ public class ChartController implements Serializable {
         yAxis.setMin(0);
         yAxis.setMax(10);
  
-        lineModel2 = initCategoryModel();
-        lineModel2.setTitle("Category Chart");
+        try {
+            lineModel2 = initCategoryModel();
+        } catch (Exception ex) {
+            Logger.getLogger(ChartController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        lineModel2.setTitle("Gráfico de categorias");
         lineModel2.setLegendPosition("e");
         lineModel2.setShowPointLabels(true);
-        lineModel2.getAxes().put(AxisType.X, new CategoryAxis("Years"));
+        lineModel2.getAxes().put(AxisType.X, new CategoryAxis("Fecha"));
         yAxis = lineModel2.getAxis(AxisType.Y);
-        yAxis.setLabel("Births");
+        yAxis.setLabel("Número de notas");
         yAxis.setMin(0);
         yAxis.setMax(10);
  
@@ -129,8 +143,63 @@ public class ChartController implements Serializable {
  
     private LineChartModel initLinearModel() {
         LineChartModel model = new LineChartModel();
- 
+
         return model;
     }
     
+    private BarChartModel initBarModel() {
+        BarChartModel model = new BarChartModel();
+ 
+        try {
+            
+            SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
+            
+            String dateString;
+             
+            Map<String, List<Object []>> map = new HashMap<>();
+            List<Categoria> categorias = categoriaEJB.findAll();
+            for(Categoria categoria : categorias){
+                map.put(categoria.getNombre(), listaPorCategoria(categoria));
+            }    
+            
+            Set< Map.Entry< String, List<Object []>> > st = map.entrySet();
+            for(Map.Entry<String, List<Object []>> me: st){
+               ChartSeries notas = new ChartSeries();
+               notas.setLabel(me.getKey());
+               for(Object [] obj : me.getValue()){
+                   dateString = format.format((Date)obj[2]);
+                   if(categoriaEJB.find((Integer)obj[1]).getNombre() == null ? me.getKey() == null : categoriaEJB.find((Integer)obj[1]).getNombre().equals(me.getKey())){
+                       notas.set(dateString,(Long)obj[0]);
+                   } 
+               }
+               model.addSeries(notas);
+            }
+            
+        } catch (Exception ex) {
+            Logger.getLogger(ChartController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+ 
+        return model;
+    }
+ 
+    private void createBarModels() {
+        createBarModel();
+    }
+ 
+    private void createBarModel() {
+        barModel = initBarModel();
+ 
+        barModel.setTitle("Gráfico de barras");
+        barModel.setLegendPosition("ne");
+        barModel.setShowPointLabels(true);
+        
+        Axis xAxis = barModel.getAxis(AxisType.X);
+        xAxis.setLabel("Fecha");
+ 
+        Axis yAxis = barModel.getAxis(AxisType.Y);
+        yAxis.setLabel("Cantidad de notas");
+        yAxis.setMin(0);
+        yAxis.setMax(10);
+    }
+     
 }

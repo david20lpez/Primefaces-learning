@@ -51,4 +51,40 @@ public class NotaFacade extends AbstractFacade<Nota> implements NotaFacadeLocal{
         }
         return lista;
     }
+    
+    @Override
+    public List<Nota> adminBuscar(int codigoCategoria, Date fechaConsulta){
+        List<Nota> lista;
+        try{
+            String jpql = "FROM Nota n WHERE n.categoria.codigo = ?1 and n.fecha between ?2 and ?3";
+            Query query = em.createQuery(jpql);
+            query.setParameter(1, codigoCategoria);
+            query.setParameter(2, fechaConsulta, TemporalType.DATE);
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(fechaConsulta);
+            cal.add(Calendar.DATE, 1);
+            query.setParameter(3, cal, TemporalType.DATE);
+            
+            lista = query.getResultList();
+        
+        }catch(Exception e){
+            throw e;
+        }
+        return lista;
+    }
+    
+    @Override
+    public List<Object []> buscarPorCategoria()throws Exception{
+        List<Object []> lista;
+        try{
+            String jpql = "SELECT COUNT(n.codigo), n.categoria.codigo, n.fecha FROM Nota n GROUP BY n.categoria.codigo, CAST(n.fecha AS DATE)";
+            Query query = em.createQuery(jpql);
+           
+            lista = query.getResultList();
+        
+        }catch(Exception e){
+            throw e;
+        }
+        return lista;
+    }
 }
