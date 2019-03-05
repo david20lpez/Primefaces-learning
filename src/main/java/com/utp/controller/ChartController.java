@@ -100,8 +100,14 @@ public class ChartController implements Serializable {
         Usuario us = (Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("usuario");
         try{
             List<Object[]> results = notaEJB.buscarPorCategoria();
+            List<Object[]> resultsAdmin = notaEJB.buscarPorCategoriaAdmin();
             for(Object [] obj : results){
-                if((Integer)obj[1] == categoria.getCodigo()){
+                if(((Integer)obj[1] == categoria.getCodigo()) && us.getCodigo().getCodigo() == (Integer)obj[3]){
+                    lista.add(obj);
+                }
+            }
+            for(Object[] obj : resultsAdmin){
+                if("A".equals(us.getTipo()) && (Integer)obj[1] == categoria.getCodigo()){
                     lista.add(obj);
                 }
             }

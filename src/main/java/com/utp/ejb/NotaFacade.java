@@ -5,6 +5,7 @@
  */
 package com.utp.ejb;
 
+import com.utp.model.Categoria;
 import com.utp.model.Nota;
 import java.util.Calendar;
 import java.util.Date;
@@ -14,6 +15,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TemporalType;
+import org.eclipse.persistence.jpa.jpql.parser.DateTime;
 
 @Stateless
 public class NotaFacade extends AbstractFacade<Nota> implements NotaFacadeLocal{
@@ -77,7 +79,7 @@ public class NotaFacade extends AbstractFacade<Nota> implements NotaFacadeLocal{
     public List<Object []> buscarPorCategoria()throws Exception{
         List<Object []> lista;
         try{
-            String jpql = "SELECT COUNT(n.codigo), n.categoria.codigo, n.fecha FROM Nota n GROUP BY n.categoria.codigo, CAST(n.fecha AS DATE)";
+            String jpql = "SELECT COUNT(n.codigo), n.categoria.codigo, CAST(n.fecha AS DATE), n.persona.codigo FROM Nota n GROUP BY n.categoria.codigo, CAST(n.fecha AS DATE), n.persona.codigo, n.persona.codigo";
             Query query = em.createQuery(jpql);
            
             lista = query.getResultList();
@@ -87,4 +89,20 @@ public class NotaFacade extends AbstractFacade<Nota> implements NotaFacadeLocal{
         }
         return lista;
     }
+    
+    @Override
+    public List<Object []> buscarPorCategoriaAdmin()throws Exception{
+        List<Object []> lista;
+        try{
+            String jpql = "SELECT COUNT(n.codigo), n.categoria.codigo, CAST(n.fecha AS DATE) FROM Nota n GROUP BY n.categoria.codigo, CAST(n.fecha AS DATE)";
+            Query query = em.createQuery(jpql);
+           
+            lista = query.getResultList();
+        
+        }catch(Exception e){
+            throw e;
+        }
+        return lista;
+    }
+    
 }

@@ -5,10 +5,12 @@
  */
 package com.utp.ejb;
 
+import com.utp.model.Categoria;
 import com.utp.model.Nota;
 import java.util.Date;
 import java.util.List;
 import javax.ejb.Local;
+import org.eclipse.persistence.jpa.jpql.parser.DateTime;
 
 @Local
 public interface NotaFacadeLocal {
@@ -31,5 +33,6 @@ public interface NotaFacadeLocal {
     List<Nota> adminBuscar(int codigoCategoria, Date fechaConsulta);
     
     List<Object []> buscarPorCategoria()throws Exception;
-    
+        
+    List<Object []> buscarPorCategoriaAdmin()throws Exception;
 }
